@@ -96,6 +96,7 @@ namespace ei {
         Application (Application const &) = delete; // prevents  this  method  to be used
         void operator= (Application const &) = delete; // prevents  this  method  to be used
     
+        double m_refresh_rate;
     private:
         static Application *instance;
         Frame *root;
@@ -103,6 +104,8 @@ namespace ei {
         bool should_quit;
         surface_t window;
         surface_t picking_surface;
+        
+        void draw ();
     };
     
 }

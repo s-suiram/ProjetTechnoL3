@@ -17,6 +17,7 @@
 namespace ei {
     
     class Widget;
+
 /**
  * \brief Abstract class that represent a geometry manager.
  */

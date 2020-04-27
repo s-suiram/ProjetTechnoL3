@@ -14,16 +14,17 @@
 #include "ei_event.h"
 
 namespace ei {
-
+    
     struct EventCallbackSettings {
         ei_eventtype_t type;
         Widget *widget;
         tag_t tag;
         ei_callback_t callback;
         void *user_param;
-        bool operator==(EventCallbackSettings const &rhs) const;
+        
+        bool operator== (EventCallbackSettings const &rhs) const;
     };
-    
+
 /**
  * \brief Class that represents the event manager.
  */
@@ -39,6 +40,7 @@ namespace ei {
     
     private:
         EventManager ();
+        
         std::list<EventCallbackSettings> callbacks;
     
     public:
@@ -77,7 +79,7 @@ namespace ei {
                      ei_callback_t callback,
                      void *user_param);
         
-        void dispatch(Event *e);
+        void dispatch (Event *e);
     };
     
 }

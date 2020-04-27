@@ -28,7 +28,7 @@ Widget::~Widget () {
 }
 
 void Widget::draw (surface_t surface, surface_t pick_surface, Rect *clipper) {
-    for(auto &c: children) {
+    for (auto &c: children) {
         c->draw(surface, pick_surface, clipper);
     }
 }

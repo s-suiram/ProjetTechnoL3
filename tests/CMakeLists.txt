@@ -1,6 +1,6 @@
 # minimal target
- add_executable(minimal minimal.cpp)
- target_link_libraries(minimal ei eibase ${Allegro_LIBRARIES} m)
+add_executable(minimal minimal.cpp)
+target_link_libraries(minimal ei eibase ${Allegro_LIBRARIES} m)
 
 
 # Targets disabled until the basic functionalities of the library are implemented
