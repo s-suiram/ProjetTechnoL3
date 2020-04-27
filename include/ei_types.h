@@ -104,6 +104,12 @@ namespace ei {
             return *this;
         }
         
+        Vector<T> &operator/= (const Vector<T> &p) {
+            value[0] /= p.value[0];
+            value[1] /= p.value[1];
+            return *this;
+        }
+        
         const Vector<T> operator+ (const Vector<T> &p) const {
             return Vector<T>(*this) += p;
         }
@@ -113,7 +119,11 @@ namespace ei {
         }
         
         const Vector<T> operator* (const Vector<T> &p) const {
-            return Vector<T>(*this) -= p;
+            return Vector<T>(*this) *= p;
+        }
+        
+        const Vector<T> operator/ (const Vector<T> &p) const {
+            return Vector<T>(*this) /= p;
         }
         
         bool operator== (const Vector<T> &p) const {
@@ -229,7 +239,7 @@ namespace ei {
  */
     extern font_t default_font;
     
-    static const int font_default_size = 22;  ///< Default font color
+    static const int font_default_size = 16;  ///< Default font color
     static const color_t font_default_color = {0x00, 0x00, 0x00, 0xff};
     static const char default_font_filename[] = DATA_DIR"font.ttf";
 

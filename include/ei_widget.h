@@ -12,6 +12,7 @@
 
 #include "ei_draw.h"
 #include "ei_geometrymanager.h"
+#include "ei_event.h"
 
 #include <functional>
 
@@ -82,9 +83,16 @@ namespace ei {
         void set_geometry_manager (GeometryManager *g);
         
         Size *get_requested_size ();
+        
+        void remove_child(Widget *w);
     
     protected:
-        widgetclass_name_t name; ///< The string name of this class of widget.
+        widgetclass_name_t name;
+    public:
+        const widgetclass_name_t &getName () const;
+
+    protected:
+        ///< The string name of this class of widget.
         
         static uint32_t s_idGenerator; ///< Static counter to assure the uniqueness of the generated Ids
         uint32_t pick_id;    ///< Id of this widget in the picking offscreen.
@@ -104,7 +112,10 @@ namespace ei {
         ///  If NULL, the widget is not currently managed and thus, is not mapped on the screen.
         Size m_requested_size;  ///< Size requested by the widget (big enough for its label, for example), or by the programmer. This can be different than its screen size defined by the placer.
         Rect screen_location; ///< Position and size of the widget expressed in the root window reference.
-        Rect *content_rect;    ///< Where to place children, when this widget is used as a container. By defaults, points to the screen_location.
+        Rect *content_rect;
+    public:
+        Rect *getContentRect () const;
+        ///< Where to place children, when this widget is used as a container. By defaults, points to the screen_location.
     };
 
 
@@ -198,9 +209,9 @@ namespace ei {
         Rect *m_img_rect;
         anchor_t m_img_anchor;
     };
-    
-    
-    struct MouseEvent;
+
+
+//    struct MouseEvent;
     
     class Button : public Widget {
     public:
@@ -295,8 +306,16 @@ namespace ei {
         bool_t m_closable;
         axis_set_t m_resizable;
         Size m_min_size;
-    };
+        static surface_t cross_tex;
+        
+        Rect cross_rect ();
+        
+        Rect title_bar_rect ();
     
+        static bool_t close_callback (Widget *widget, Event *event, void *user_param);
+    
+    };
 }
+
 
 #endif

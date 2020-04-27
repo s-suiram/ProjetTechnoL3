@@ -77,3 +77,15 @@ void Widget::run_geom () {
         geom_manager->run(this);
     }
 }
+
+void Widget::remove_child (Widget *child) {
+    children.remove(child);
+}
+
+Rect *Widget::getContentRect () const {
+    return content_rect;
+}
+
+const widgetclass_name_t &Widget::getName () const {
+    return name;
+}

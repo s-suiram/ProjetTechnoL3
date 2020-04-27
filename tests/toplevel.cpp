@@ -53,11 +53,11 @@ int ei_main (int argc, char *argv[]) {
     
     Size window_size(400, 400);
     const char *window_title = "Window";
-    color_t window_color = {0xA0, 0xA0, 0xA0, 0xff};
+    color_t window_color = {0xA0, 0xB0, 0xC0, 0xff};
     int window_border_width = 3;
     bool_t closable = EI_TRUE;
     axis_set_t window_resizable = ei_axis_both;
-    Point window_position(30, 10);
+    Point window_position(50, 70);
     
     Application *app = new Application(&screen_size);
     app->root_widget()->configure(&screen_size, &root_bgcol, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
@@ -87,7 +87,7 @@ int ei_main (int argc, char *argv[]) {
     p3->configure(button_cancel, &button_anchor_2, &button_x2, &button_y, NULL, NULL, &button_rel_x2, &button_rel_y,
                   &button_rel_size_x, NULL);
     Placer *p4 = new Placer();
-    p4->configure(button_cut, &button_anchor, &button_x2, &button_y2, NULL, NULL, &button_rel_x, &button_rel_y,
+    p4->configure(button_cut, &button_anchor, &button_x, &button_y2, NULL, NULL, &button_rel_x, &button_rel_y,
                   &button_rel_size_x, NULL);
     
     EventManager::getInstance().bind(ei_ev_keydown, NULL, "all", process_key, app);

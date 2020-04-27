@@ -30,6 +30,7 @@ EventManager::unbind (ei_eventtype_t eventtype, Widget *widget, tag_t tag, ei_ca
 }
 
 void EventManager::dispatch (Event *e) {
+//    printf("dispatched event: %d\n", e->type);
     for (auto &s : callbacks) {
         bool_t consumed = EI_FALSE;
         if (s.type != e->type) continue;
