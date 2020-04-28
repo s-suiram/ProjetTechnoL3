@@ -4,13 +4,20 @@
 using namespace ei;
 
 surface_t Toplevel::cross_tex = nullptr;
+Point Toplevel::resize_square_size = Point(10, 10);
 
 Toplevel::Toplevel (Widget *parent) : Widget("toplevel", parent) {
     if (cross_tex == nullptr) {
         Toplevel::cross_tex = hw_image_load(DATA_DIR"cross.png");
     }
     
-    EventManager::getInstance().bind(ei_ev_mouse_buttonup, this, "", close_callback, this);
+    m_title_dragging = false;
+    m_last_mouse_pos = Point(0, 0);
+    
+    EventManager::getInstance().bind(ei_ev_mouse_buttonup, this, "", close_callback, nullptr);
+    EventManager::getInstance().bind(ei_ev_mouse_buttondown, this, "", title_press_callback, nullptr);
+    EventManager::getInstance().bind(ei_ev_mouse_move, nullptr, "all", mouse_move_callback, this);
+    EventManager::getInstance().bind(ei_ev_mouse_buttonup, nullptr, "all", release_callback, this);
 }
 
 Toplevel::~Toplevel () {}
@@ -99,6 +106,22 @@ void Toplevel::draw (surface_t surface, surface_t pick_surface, Rect *clipper) {
     draw_polygon(surface, points, black, clipper);
     
     Widget::draw(surface, pick_surface, clipper);
+    
+    // Resize square
+    
+    if (m_resizable != ei_axis_none) {
+        points.clear();
+        points.push_back(screen_location.top_left + screen_location.size);
+        points.push_back(screen_location.top_left +
+                         Size(screen_location.size.width() - resize_square_size.width(),
+                              screen_location.size.height()));
+        points.push_back(screen_location.top_left + (screen_location.size - resize_square_size));
+        points.push_back(screen_location.top_left +
+                         Size(screen_location.size.width(),
+                              screen_location.size.height() - resize_square_size.width()));
+        
+        draw_polygon(surface, points, black, clipper);
+    }
 }
 
 Rect Toplevel::title_bar_rect () {
@@ -119,14 +142,55 @@ Rect Toplevel::cross_rect () {
 
 bool_t Toplevel::close_callback (Widget *widget, Event *event, void *user_param) {
     auto *mouseEvent = (MouseEvent *) event;
-    Point p = mouseEvent->where;
-    auto *tl = (Toplevel *) user_param;
+    auto *tl = (Toplevel *) widget;
     Rect cross = tl->cross_rect();
-    if (tl->m_closable
-        && p.x() > cross.top_left.x() && p.x() < cross.top_left.x() + cross.size.width()
-        && p.y() > cross.top_left.y() && p.y() < cross.top_left.y() + cross.size.height()) {
+    if (tl->m_closable && cross.contains(mouseEvent->where)) {
         tl->getParent()->remove_child(tl);
         return EI_TRUE;
     }
     return EI_FALSE;
+}
+
+bool_t Toplevel::title_press_callback (Widget *w, Event *e, void *user_param) {
+    auto tl = (Toplevel *) w;
+    auto mouseEvent = (MouseEvent *) e;
+    auto title_bar_rect = tl->title_bar_rect();
+    auto resize_square = Rect(tl->screen_location.top_left + tl->screen_location.size - resize_square_size,
+                              resize_square_size);
+    if (title_bar_rect.contains(mouseEvent->where)) {
+        tl->m_title_dragging = true;
+    } else if (resize_square.contains(mouseEvent->where)) {
+        tl->m_resize_drag = true;
+    }
+    return EI_TRUE;
+}
+
+bool_t Toplevel::release_callback (Widget *w, Event *e, void *user_param) {
+    auto tl = (Toplevel *) user_param;
+    tl->m_title_dragging = false;
+    tl->m_resize_drag = false;
+    return EI_TRUE;
+}
+
+bool_t Toplevel::mouse_move_callback (Widget *w, Event *e, void *user_param) {
+    auto tl = (Toplevel *) user_param;
+    auto mouseEvent = (MouseEvent *) e;
+    if (tl->m_title_dragging) {
+        auto new_pos = tl->screen_location.top_left - (tl->m_last_mouse_pos - mouseEvent->where);
+        ((Placer *) tl->get_geom_manager())->configure(tl, nullptr, &new_pos.x(), &new_pos.y(),
+                                                       nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
+    } else if (tl->m_resize_drag) {
+        if (tl->m_resizable == ei_axis_none) return EI_FALSE;
+        auto new_size = tl->screen_location.size - (tl->m_last_mouse_pos - mouseEvent->where);
+        if (tl->m_resizable == ei_axis_x) new_size.height() = tl->screen_location.size.height();
+        if (tl->m_resizable == ei_axis_y) new_size.width() = tl->screen_location.size.width();
+        
+        if (new_size.width() < tl->m_min_size.width()) new_size.width() = tl->m_min_size.width();
+        if (new_size.height() < tl->m_min_size.height()) new_size.height() = tl->m_min_size.height();
+        ((Placer *) tl->get_geom_manager())->configure(tl, nullptr, nullptr, nullptr, &new_size.width(),
+                                                       &new_size.height(),
+                                                       nullptr, nullptr, nullptr, nullptr);
+    }
+    tl->m_last_mouse_pos = mouseEvent->where;
+    return EI_TRUE;
 }

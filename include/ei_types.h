@@ -158,6 +158,11 @@ namespace ei {
         Size size;       ///< Size of the rectangle.
         Rect (Point top_left = Point(), Size size = Size())
                 : top_left(top_left), size(size) {}
+        
+        bool contains (Point p) {
+            return p.x() > top_left.x() && p.x() < top_left.x() + size.width()
+                   && p.y() > top_left.y() && p.y() < top_left.y() + size.height();
+        }
     };
 
 /**

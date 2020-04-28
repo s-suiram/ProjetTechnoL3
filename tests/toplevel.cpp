@@ -56,7 +56,7 @@ int ei_main (int argc, char *argv[]) {
     color_t window_color = {0xA0, 0xB0, 0xC0, 0xff};
     int window_border_width = 3;
     bool_t closable = EI_TRUE;
-    axis_set_t window_resizable = ei_axis_both;
+    axis_set_t window_resizable = ei_axis_none;
     Point window_position(50, 70);
     
     Application *app = new Application(&screen_size);

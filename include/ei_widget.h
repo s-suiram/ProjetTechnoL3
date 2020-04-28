@@ -313,7 +313,17 @@ namespace ei {
         Rect title_bar_rect ();
     
         static bool_t close_callback (Widget *widget, Event *event, void *user_param);
+        
+        static bool_t title_press_callback(Widget *w, Event *e, void *user_param);
+        static bool_t release_callback(Widget *w, Event *e, void *user_param);
+        static bool_t mouse_move_callback(Widget *w, Event *e, void *user_param);
+        static Point resize_square_size;
     
+        //Drag handling
+        bool m_title_dragging;
+        bool m_resize_drag;
+        
+        Point m_last_mouse_pos;
     };
 }
 
