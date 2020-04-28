@@ -1,8 +1,18 @@
+#include <ei_eventmanager.h>
 #include "ei_widget.h"
 
 using namespace ei;
 
-Button::Button (Widget *parent) : Widget("button", parent) {}
+Button::Button (Widget *parent) : Widget("button", parent), m_clicked(false) {
+    EventManager::getInstance().bind(ei_ev_mouse_buttondown, this, "", mouse_down_callback, nullptr);
+    EventManager::getInstance().bind(ei_ev_mouse_buttonup, this, "", mouse_up_callback, nullptr);
+}
+
+
+Button::~Button () {
+    EventManager::getInstance().unbind(ei_ev_mouse_buttondown, this, "", mouse_down_callback, nullptr);
+    EventManager::getInstance().unbind(ei_ev_mouse_buttonup, this, "", mouse_up_callback, nullptr);
+}
 
 void
 Button::configure (Size *requested_size, const color_t *color, int *border_width, int *corner_radius, relief_t *relief,
@@ -36,10 +46,31 @@ Button::configure (Size *requested_size, const color_t *color, int *border_width
     }
 }
 
+static color_t darken (color_t c) {
+    c.red -= 20;
+    c.green -= 20;
+    c.blue -= 20;
+    return c;
+}
+
 void Button::draw (surface_t surface, surface_t pick_surface, Rect *clipper) {
-    surface_t s = hw_surface_create(surface, &screen_location.size);
-    fill(s, &m_color, EI_TRUE);
-    ei_copy_surface(surface, s, &screen_location.top_left, EI_TRUE);
+    linked_point_t points;
+    points.push_back(screen_location.top_left);
+    points.push_back(screen_location.top_left + Size(screen_location.size.x(), 0));
+    points.push_back(screen_location.top_left + screen_location.size);
+    points.push_back(screen_location.top_left + Size(0, screen_location.size.y()));
+    
+    color_t final_color;
+    
+    if (m_clicked) {
+        final_color = darken(m_color);
+    } else {
+        final_color = m_color;
+    }
+    
+    draw_polygon(surface, points, final_color, clipper);
+    draw_polygon(pick_surface, points, pick_color, clipper);
+    
     if (m_text != nullptr) {
         surface_t text_surface = hw_text_create_surface(m_text, m_text_font, &m_text_color);
         Point text_pos;
@@ -51,8 +82,18 @@ void Button::draw (surface_t surface, surface_t pick_surface, Rect *clipper) {
     } else if (m_img != nullptr) {
         printf("implement button image\n");
     }
-    fill(s, &pick_color, EI_FALSE);
-    ei_copy_surface(pick_surface, s, &screen_location.top_left, EI_FALSE);
-    hw_surface_free(s);
+    
     Widget::draw(surface, pick_surface, clipper);
+}
+
+bool_t Button::mouse_down_callback (Widget *w, Event *e, void *user_param) {
+    auto b = (Button *) w;
+    b->m_clicked = true;
+    return EI_FALSE;
+}
+
+bool_t Button::mouse_up_callback (Widget *w, Event *e, void *user_param) {
+    auto b = (Button *) w;
+    b->m_clicked = false;
+    return EI_FALSE;
 }

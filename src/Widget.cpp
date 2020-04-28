@@ -41,10 +41,10 @@ void Widget::geomnotify (Rect rect) {
 Widget *Widget::pick (uint32_t id) {
     if (getPick_id() == id) return this;
     
-    for (auto &child: children) {
-        if (child->getPick_id() == id) return child;
+    for (auto child: children) {
+        auto picked = child->pick(id);
+        if (picked != nullptr) return picked;
     }
-    
     return nullptr;
 }
 

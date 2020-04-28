@@ -20,7 +20,12 @@ Toplevel::Toplevel (Widget *parent) : Widget("toplevel", parent) {
     EventManager::getInstance().bind(ei_ev_mouse_buttonup, nullptr, "all", release_callback, this);
 }
 
-Toplevel::~Toplevel () {}
+Toplevel::~Toplevel () {
+    EventManager::getInstance().unbind(ei_ev_mouse_buttonup, this, "", close_callback, nullptr);
+    EventManager::getInstance().unbind(ei_ev_mouse_buttondown, this, "", title_press_callback, nullptr);
+    EventManager::getInstance().unbind(ei_ev_mouse_move, nullptr, "all", mouse_move_callback, this);
+    EventManager::getInstance().unbind(ei_ev_mouse_buttonup, nullptr, "all", release_callback, this);
+}
 
 void Toplevel::configure (Size *requested_size, color_t *color, int *border_width, const char **title, bool_t *closable,
                           axis_set_t *resizable, Size *min_size) {
@@ -146,7 +151,6 @@ bool_t Toplevel::close_callback (Widget *widget, Event *event, void *user_param)
     Rect cross = tl->cross_rect();
     if (tl->m_closable && cross.contains(mouseEvent->where)) {
         tl->getParent()->remove_child(tl);
-        return EI_TRUE;
     }
     return EI_FALSE;
 }
@@ -162,14 +166,14 @@ bool_t Toplevel::title_press_callback (Widget *w, Event *e, void *user_param) {
     } else if (resize_square.contains(mouseEvent->where)) {
         tl->m_resize_drag = true;
     }
-    return EI_TRUE;
+    return EI_FALSE;
 }
 
 bool_t Toplevel::release_callback (Widget *w, Event *e, void *user_param) {
     auto tl = (Toplevel *) user_param;
     tl->m_title_dragging = false;
     tl->m_resize_drag = false;
-    return EI_TRUE;
+    return EI_FALSE;
 }
 
 bool_t Toplevel::mouse_move_callback (Widget *w, Event *e, void *user_param) {
@@ -192,5 +196,5 @@ bool_t Toplevel::mouse_move_callback (Widget *w, Event *e, void *user_param) {
                                                        nullptr, nullptr, nullptr, nullptr);
     }
     tl->m_last_mouse_pos = mouseEvent->where;
-    return EI_TRUE;
+    return EI_FALSE;
 }

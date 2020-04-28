@@ -218,7 +218,7 @@ namespace ei {
         
         Button (Widget *parent);
         
-        virtual ~Button () = default;
+        virtual ~Button ();
         
         virtual void draw (surface_t surface,
                            surface_t pick_surface,
@@ -260,6 +260,10 @@ namespace ei {
         surface_t m_img;
         Rect *m_img_rect;
         anchor_t m_img_anchor;
+        
+        bool m_clicked;
+        static bool_t mouse_down_callback(Widget *w, Event *e, void *user_param);
+        static bool_t mouse_up_callback(Widget *w, Event *e, void *user_param);
     };
     
     

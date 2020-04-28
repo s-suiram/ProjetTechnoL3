@@ -1,5 +1,6 @@
 #include <ei_application.h>
 #include "ei_eventmanager.h"
+#include <iostream>
 
 using namespace ei;
 
@@ -30,10 +31,12 @@ EventManager::unbind (ei_eventtype_t eventtype, Widget *widget, tag_t tag, ei_ca
 }
 
 void EventManager::dispatch (Event *e) {
-//    printf("dispatched event: %d\n", e->type);
     for (auto &s : callbacks) {
         bool_t consumed = EI_FALSE;
-        if (s.type != e->type) continue;
+        
+        if (s.type != e->type) {
+            continue;
+        }
         
         if (s.tag == "all") consumed = s.callback(nullptr, e, s.user_param);
         else if (e->type >= ei_ev_mouse_buttondown) { // all event that need picking
@@ -49,6 +52,7 @@ void EventManager::dispatch (Event *e) {
         
         if (consumed == EI_TRUE) return;
     }
+    
 }
 
 bool EventCallbackSettings::operator== (EventCallbackSettings const &rhs) const {
